@@ -3,6 +3,8 @@ const sass = require('gulp-sass')(require('sass'));
 const dc = require('postcss-discard-comments');
 const browserSync = require('browser-sync');
 const postcss = require('gulp-postcss');
+const cssnano = require('cssnano');
+const rename = require('gulp-rename');
 const csscomb = require('gulp-csscomb');
 const autoprefixer = require('autoprefixer');
 const mqpacker = require('css-mqpacker');
@@ -43,6 +45,15 @@ function scss() {
     .pipe(csscomb())
     .pipe(dest(PATH.cssFolder))
     .pipe(browserSync.stream());
+}
+function scssMin() {
+  return src(PATH.scssFile)
+    .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
+    .pipe(postcss(PLUGINS))
+    .pipe(csscomb())
+    .pipe(postcss([cssnano({preset: 'default'})]))
+    .pipe(rename({suffix: '.min'}))
+    .pipe(dest(PATH.cssFolder));
 }
 function scssDev() {
   return src(PATH.scssFile, {sourcemaps: true})
@@ -116,6 +127,7 @@ function createStructure() {
 
 task('comb', series(comb));
 task('scss', series(scss));
+task('cssmin', scssMin);
 task('dev', series(scssDev));
 task('cs', series(createStructure));
 task('watch', watchFiles);

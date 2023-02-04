@@ -1,6 +1,8 @@
 @use "../presets" as *;
 
-@mixin adaptive_font ($pcSize, $mobSize) {
+@mixin adaptive-font ($pcSize, $mobSize) {
+  $maxWidth: 1440;
+
   $addSize: $pcSize - $mobSize;
   $addMobSize: $addSize + $addSize * 0.7;
   @media (min-width: 767px) {
@@ -11,7 +13,7 @@
   }
 }
 
-@mixin adaptive_line-height($lineHeight, $fontSize) {
+@mixin adaptive-line-height($lineHeight, $fontSize) {
   line-height: $lineHeight / $fontSize * 100%;
 }
 
