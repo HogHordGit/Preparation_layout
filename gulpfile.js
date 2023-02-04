@@ -9,6 +9,9 @@ const csscomb = require('gulp-csscomb');
 const autoprefixer = require('autoprefixer');
 const mqpacker = require('css-mqpacker');
 const sortCSSmq = require('sort-css-media-queries');
+const terser = require('gulp-terser');
+const concat = require('gulp-concat');
+const del = require('del');
 
 const option = process.argv[3];
 
@@ -22,8 +25,9 @@ const PATH = {
   htmlFolder: './',
   htmlFiles: './*.html',
   jsFolder: './assets/js/',
-  jsFiles: './assets/js/**/*.js',
-  imgFolder: './assets/img/'
+  jsFiles: ['./assets/js/**/*.js', '!./assets/js/**/bundle.js', '!./assets/js/**/*.min.js'],
+  imgFolder: './assets/img/',
+  jsBundleName: 'bundle.js'
 };
 
 const PLUGINS = [
@@ -125,9 +129,29 @@ function createStructure() {
   }, 1000));
 }
 
+function concatJS() {
+  return src(PATH.jsFiles)
+    .pipe(concat(PATH.jsBundleName))
+    .pipe(dest(PATH.jsFolder));
+}
+
+function minJS() {
+  return src(PATH.jsFiles)
+    .pipe(terser({
+      toplevel: true,
+      output: {
+        quote_style: 3
+      }
+    }))
+    .pipe(rename({suffix: '.min'}))
+    .pipe(dest(PATH.jsFolder));
+}
+
 task('comb', series(comb));
 task('scss', series(scss));
 task('cssmin', scssMin);
-task('dev', series(scssDev));
 task('cs', series(createStructure));
 task('watch', watchFiles);
+task('dev', series(scssDev));
+task('conjs', series(concatJS));
+task('minjs', series(minJS));
