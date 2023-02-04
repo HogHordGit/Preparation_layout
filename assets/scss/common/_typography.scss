@@ -1,0 +1,13 @@
+@use "../presets" as *;
+@use "../mixins" as *;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+%container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
