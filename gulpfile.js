@@ -1,4 +1,5 @@
 const {task, series, parallel, src, dest, watch} = require('gulp');
+const pug = require('gulp-pug');
 const sass = require('gulp-sass')(require('sass'));
 const dc = require('postcss-discard-comments');
 const browserSync = require('browser-sync');
@@ -24,6 +25,7 @@ const PATH = {
   cssFile: './assets/css/style.css',
   htmlFolder: './',
   htmlFiles: './*.html',
+  pugFiles: './*.pug',
   jsFolder: './assets/js/',
   jsFiles: ['./assets/js/**/*.js', '!./assets/js/**/bundle.js', '!./assets/js/**/*.min.js'],
   imgFolder: './assets/img/',
@@ -84,15 +86,6 @@ async function sync() {
   browserSync.reload();
 }
 
-function watchFiles() {
-  syncInit();
-  if (!option) watch(PATH.scssFiles, series(scss));
-  if (option === '--dev') watch(PATH.scssFiles, series(scssDev));
-  if (option === '--css') watch(PATH.cssFiles, sync);
-  watch(PATH.htmlFiles, sync);
-  watch(PATH.jsFiles, sync);
-}
-
 function createStructure() {
   let file = [];
   let scssFiles = [];
@@ -147,6 +140,25 @@ function minJS() {
     .pipe(dest(PATH.jsFolder));
 }
 
+function pugIntoHtml() {
+  return src('*.pug')
+    .pipe(pug({
+      pretty: true
+    }))
+    .pipe(dest(PATH.htmlFolder));
+}
+
+function watchFiles() {
+  syncInit();
+  if (!option) watch(PATH.scssFiles, series(scss));
+  if (option === '--dev') watch(PATH.scssFiles, series(scssDev));
+  if (option === '--css') watch(PATH.cssFiles, sync);
+  if (option === '--pug') watch(PATH.pugFiles, series(pugIntoHtml));
+  watch(PATH.htmlFiles, sync);
+  watch(PATH.jsFiles, sync);
+}
+
+task('pug', series(pugIntoHtml));
 task('comb', series(comb));
 task('scss', series(scss));
 task('cssmin', scssMin);
